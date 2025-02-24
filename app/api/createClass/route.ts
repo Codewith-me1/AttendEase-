@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { db } from "@/lib/db"; // Import the Turso client
 
 export async function POST(req: Request) {
   try {
@@ -11,12 +9,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Class name is required" }, { status: 400 });
     }
 
-    const newClass = await prisma.class.create({  // Change 'class' to 'class_'
-      data: { name },
+    const classId = crypto.randomUUID(); // Generate unique ID
+
+    // Insert new class into the Turso database
+    await db.execute({
+      sql: "INSERT INTO classes (id, name, createdAt) VALUES (?, ?, ?)",
+      args: [classId, name, new Date().toISOString()],
     });
 
-    return NextResponse.json(newClass, { status: 200 });
+    return NextResponse.json({ message: "Class created successfully", classId }, { status: 200 });
   } catch (error) {
+    console.error("Error creating class:", error);
     return NextResponse.json({ error: "Failed to create class" }, { status: 500 });
   }
 }

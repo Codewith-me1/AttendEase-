@@ -8,12 +8,34 @@ import "react-toastify/dist/ReactToastify.css";
 function StudentComponent() {
   const searchParams = useSearchParams();
   const [classId, setClassId] = useState<string | null>(null);
+  const [className, setClassName] = useState<string | null>(null); // ✅ Store class name
   const [studentName, setStudentName] = useState("");
   const [marked, setMarked] = useState(false);
 
   useEffect(() => {
-    setClassId(searchParams.get("classId"));
+    const id = searchParams.get("classId");
+    setClassId(id);
+
+    if (id) {
+      fetchClassName(id); // ✅ Fetch class name when classId is set
+    }
   }, [searchParams]);
+
+  // ✅ Fetch class name from the backend
+  const fetchClassName = async (classId: string) => {
+    try {
+      const response = await fetch(`/api/getClassName?classId=${classId}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setClassName(data.name);
+      } else {
+        toast.error("Failed to fetch class name.", { position: "top-center" });
+      }
+    } catch (error) {
+      toast.error("Error fetching class name.", { position: "top-center" });
+    }
+  };
 
   const markAttendance = async () => {
     if (!classId || !studentName.trim()) {
@@ -57,8 +79,10 @@ function StudentComponent() {
         </h1>
 
         <p className="text-center text-gray-600 mb-4">
-          Class ID:{" "}
-          <span className="font-semibold">{classId || "Loading..."}</span>
+          Class Name:{" "}
+          <span className="font-semibold">
+            {className ? className : "Loading..."}
+          </span>
         </p>
 
         <input

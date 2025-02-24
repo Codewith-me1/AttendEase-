@@ -116,7 +116,7 @@ const MultiStepSignup = () => {
 
       await createUserInFirestore(user);
 
-      router.push("/");
+      router.push("/Authenticated/teacher");
     } catch (error: any) {
       setErrorMessage(error.message);
     }

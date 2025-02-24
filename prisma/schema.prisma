@@ -3,9 +3,10 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./attendance.db"
-}
+  provider = "sqlite" 
+  url      = env("DATABASE_URL")
+  
+  }
 
 model Attendance {
   id          String   @id @default(uuid())
@@ -13,6 +14,7 @@ model Attendance {
   studentName String
   timestamp   DateTime @default(now())
 }
+
 model Class {
   id         String   @id @default(uuid())
   name       String
@@ -20,4 +22,3 @@ model Class {
 
   @@map("classes") // Renames the database table to 'classes'
 }
-

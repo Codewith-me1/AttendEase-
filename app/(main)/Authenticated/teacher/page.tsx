@@ -19,6 +19,7 @@ export default function Teacher() {
 
     try {
       const response = await fetch("/api/createClass", {
+        // ✅ Ensure API route is correct
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: className }),
@@ -35,8 +36,10 @@ export default function Teacher() {
           position: "top-center",
         });
 
-        // Generate a QR Code URL
-        const qrURL = `${window.location.origin}/student?classId=${data.id}`;
+        console.log("Class Created:", data); // ✅ Debugging log
+
+        // ✅ Fix: Ensure correct key name is used for classId
+        const qrURL = `${window.location.origin}/student?classId=${data.classId}`;
         setQrValue(qrURL);
         setClassName(""); // Clear input field
       }

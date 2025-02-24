@@ -38,7 +38,7 @@ export default function Login() {
           path: "/",
           maxAge: 60 * 60 * 24,
         });
-        router.push("/");
+        router.push("/Authenticated/teacher");
       }
     } catch (loginError: any) {
       setErrorMessage(cleanErrorMessage(loginError.message));

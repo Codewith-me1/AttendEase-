@@ -25,7 +25,7 @@ export default function Sidebar() {
       <ul className="space-y-4">
         <li>
           <Link
-            href="/teacher"
+            href="/Authenticated/teacher"
             className="flex items-center gap-3 text-lg p-3 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
           >
             <FaChalkboardTeacher size={22} />
@@ -34,7 +34,7 @@ export default function Sidebar() {
         </li>
         <li>
           <Link
-            href="/classes"
+            href="/Authenticated/classes"
             className="flex items-center gap-3 text-lg p-3 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
           >
             <FaTable size={22} />
