@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./attendance.db"
+}
+
+model Attendance {
+  id          String   @id @default(uuid())
+  classId     String
+  studentName String
+  timestamp   DateTime @default(now())
+}
+model Class {
+  id         String   @id @default(uuid())
+  name       String
+  createdAt  DateTime @default(now())
+
+  @@map("classes") // Renames the database table to 'classes'
+}
+
