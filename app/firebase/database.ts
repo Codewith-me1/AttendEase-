@@ -1,7 +1,8 @@
 import { doc , getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, deleteField, Timestamp } from "firebase/firestore";
 
 import { db } from './config'
-import { User } from "firebase/auth";
+import { User , updateProfile } from "firebase/auth";
+
 
 
 
@@ -9,6 +10,7 @@ interface UserData {
   
   email:string|null;
   createdAt:Date | null;
+ 
 
 }
 
@@ -135,7 +137,7 @@ export const addGenreData = async (userId?:string, genreDataArray:[]=[]) => {
 
 
 
-  export const createUserInFirestore = async (user:User) => {
+  export const createTeacherInFirestore = async (user:User,) => {
     try {
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
@@ -143,6 +145,7 @@ export const addGenreData = async (userId?:string, genreDataArray:[]=[]) => {
         name: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
+        
         createdAt: new Date().toISOString(),
       }, { merge: true }); // Merge to prevent overwriting existing data
       console.log("User added/updated in Firestore");
@@ -150,6 +153,39 @@ export const addGenreData = async (userId?:string, genreDataArray:[]=[]) => {
       console.error("Error creating user in Firestore: ", error);
     }
   };
+
+  export const createUserInFirestore = async (user: User, role: string,name:string|any) => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+  
+      // ✅ Set default values if missing (for email/password users)
+      // Default name from email
+      const displayName = name || user.displayName || user.email?.split("@")[0];
+      const photoURL = user.photoURL || "https://via.placeholder.com/150"; // Default avatar
+  
+      // ✅ If email/password signup, update Firebase profile
+      if (!user.displayName) {
+        await updateProfile(user, { displayName: name, photoURL });
+      }
+  
+      // ✅ Save user data in Firestore
+      await setDoc(userRef, {
+        uid: user.uid,
+        name:displayName,
+        email: user.email,
+        photoURL,
+        role,
+        createdAt: new Date().toISOString(),
+      }, { merge: true }); // Merge to prevent overwriting existing data
+      
+      console.log("User added/updated in Firestore");
+    } catch (error) {
+      console.error("Error creating user in Firestore: ", error);
+    }
+  };
+
+
   
 
 
@@ -237,3 +273,23 @@ export const getUserWatchlist = async (userId?:string) => {
   }
 };
 
+
+
+export const getUserData = async (userId?:string)=>{
+  if(!userId){
+    throw new Error("Invalid User Id ")
+
+  }
+
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  
+  if (userSnap.exists()) {
+    return userSnap.data() || []; 
+  } else {
+    throw new Error("User document not found");
+  }
+
+
+}

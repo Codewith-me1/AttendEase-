@@ -4,11 +4,13 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/app/firebase/config";
 
 function StudentComponent() {
   const searchParams = useSearchParams();
   const [classId, setClassId] = useState<string | null>(null);
-  const [className, setClassName] = useState<string | null>(null); // ✅ Store class name
+  const [className, setClassName] = useState<string | null>(null); // Store class name
   const [studentName, setStudentName] = useState("");
   const [marked, setMarked] = useState(false);
 
@@ -17,11 +19,23 @@ function StudentComponent() {
     setClassId(id);
 
     if (id) {
-      fetchClassName(id); // ✅ Fetch class name when classId is set
+      fetchClassName(id); // Fetch class name when classId is set
     }
+
+    // If user is logged in, retrieve their display name.
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Use displayName or fallback to email username
+        const name = user.displayName || user.email?.split("@")[0] || "";
+        
+        setStudentName(name);
+      }
+    });
+
+    return () => unsubscribe();
   }, [searchParams]);
 
-  // ✅ Fetch class name from the backend
+  // Fetch class name from the backend
   const fetchClassName = async (classId: string) => {
     try {
       const response = await fetch(`/api/getClassName?classId=${classId}`);

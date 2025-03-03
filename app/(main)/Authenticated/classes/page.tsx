@@ -18,6 +18,7 @@ interface Class {
 
 export default function Dashboard() {
   const [classes, setClasses] = useState<Class[]>([]);
+  
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
   const [selectedDate, setSelectedDate] = useState("");
 

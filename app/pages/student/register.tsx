@@ -4,10 +4,7 @@ import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { auth, signInWithPopup } from "@/app/firebase/config";
 import { useState, useEffect, useRef, CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import {
-  createTeacherInFirestore,
-  saveUserData,
-} from "../../firebase/database";
+import { saveUserData } from "../../firebase/database";
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
@@ -25,13 +22,19 @@ import {
 import Alert from "@/app/components/popup/alert";
 import { setCookie } from "nookies";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
-import { BiHappyHeartEyes, BiLockAlt, BiUser } from "react-icons/bi";
+import {
+  BiHappyHeartEyes,
+  BiLockAlt,
+  BiMailSend,
+  BiUser,
+} from "react-icons/bi";
 import { Eye, EyeClosed } from "lucide-react";
 import { AuthProvider } from "firebase/auth";
 
-const MultiStepSignup = () => {
+const StudentRegister = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
     genres: [],
@@ -68,7 +71,7 @@ const MultiStepSignup = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
     if (name === "password") {
       const error = validatePassword(value);
@@ -84,6 +87,11 @@ const MultiStepSignup = () => {
         formData.password
       );
       const registeredUser = userCredential?.user;
+
+      if (!registeredUser) {
+        throw new Error("User registration failed");
+      }
+
       const idToken = await registeredUser?.getIdToken();
 
       if (idToken) {
@@ -92,6 +100,7 @@ const MultiStepSignup = () => {
           maxAge: 60 * 60 * 24,
         });
 
+        await createUserInFirestore(registeredUser, "student", formData.name);
         router.push("/");
         console.log("Account Created");
       } else {
@@ -117,7 +126,11 @@ const MultiStepSignup = () => {
         maxAge: 60 * 60 * 24, // 1 day
       });
 
-      await createTeacherInFirestore(user);
+      await createUserInFirestore(
+        user,
+        "student",
+        user.displayName || user.email?.split("@")[0]
+      );
 
       router.push("/Authenticated/teacher");
     } catch (error: any) {
@@ -141,8 +154,19 @@ const MultiStepSignup = () => {
     <div className="relative  space-y-8 w-full">
       <div className="p-[1px] rounded-2xl border-2 border-[#0000] [background:padding-box_var(--bg-color),border-box_var(--border-color)]">
         <div className="space-y-4">
-          <div>
+          <div className="relative">
             <BiUser className="absolute top-8 left-4 transform -translate-y-1/2 text-gray-400 text-xl" />
+            <input
+              name="name"
+              type="text"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full pl-12 pr-4 py-4 bg-[#363a54] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+            />
+          </div>
+          <div className="relative">
+            <BiMailSend className="absolute top-8 left-4 transform -translate-y-1/2 text-gray-400 text-xl" />
             <input
               name="email"
               type="email"
@@ -192,7 +216,7 @@ const MultiStepSignup = () => {
             {loading ? "Signing up..." : "Register"}
           </Button>
         </div>
-        <div className="providerLogin flex justify-between gap-[1rem] mt-4">
+        {/* <div className="providerLogin flex justify-between gap-[1rem] mt-4">
           <Button
             variant="outline"
             className="w-full flex items-center justify-center glassyEffect"
@@ -222,7 +246,7 @@ const MultiStepSignup = () => {
             />
             GitHub
           </Button>
-        </div>
+        </div> */}
 
         {errorMessage && <Alert page="Signup" error={errorMessage} />}
       </div>
@@ -230,4 +254,4 @@ const MultiStepSignup = () => {
   );
 };
 
-export default MultiStepSignup;
+export default StudentRegister;
