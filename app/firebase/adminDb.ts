@@ -30,3 +30,26 @@ export const getUserWatchlist = async (userId:string) => {
   }
 
 };
+
+
+
+export const getStudents = async () => {
+  try {
+    const usersRef = adminDb.collection("users"); // Reference to "users" collection
+    const snapshot = await usersRef.where("role", "==", "student").get();
+
+    if (snapshot.empty) {
+      throw new Error("No students found");
+    }
+
+    const students = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return students;
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    throw new Error("Failed to retrieve students");
+  }
+};

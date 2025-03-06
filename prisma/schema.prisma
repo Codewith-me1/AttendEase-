@@ -5,12 +5,12 @@ generator client {
 datasource db {
   provider = "sqlite" 
   url      = env("DATABASE_URL")
-  
-  }
+}
 
 model Attendance {
   id          String   @id @default(uuid())
   classId     String
+  studentId   String  @default("unknown")  // Stores the User ID
   studentName String
   timestamp   DateTime @default(now())
 }

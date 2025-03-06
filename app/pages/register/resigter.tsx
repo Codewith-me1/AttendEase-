@@ -31,6 +31,7 @@ import { AuthProvider } from "firebase/auth";
 
 const MultiStepSignup = () => {
   const [step, setStep] = useState(1);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -43,6 +44,7 @@ const MultiStepSignup = () => {
   const router = useRouter();
   const [password, TogglePassword] = useState(false);
   const boxRef = useRef(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
   const validatePassword = (password: string) => {
@@ -78,6 +80,11 @@ const MultiStepSignup = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.password !== confirmPassword) {
+      setConfirmPasswordError("Passwords do not match.");
+      return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(
         formData.email,
@@ -133,7 +140,7 @@ const MultiStepSignup = () => {
         },
         user?.user.uid || "" // Provide a fallback
       );
-      router.push("/");
+      router.push("/Authenticated/teacher");
     }
   }, [user, router]);
 
@@ -180,6 +187,39 @@ const MultiStepSignup = () => {
             />
             {passwordError && (
               <p className="text-red-500 text-sm">{passwordError}</p>
+            )}
+          </div>
+
+          <div className="relative">
+            {password === true ? (
+              <EyeClosed
+                onClick={() => {
+                  TogglePassword(!password);
+                }}
+                className="absolute top-1/2 left-4 transform -translate-y-1/2 text-gray-400 text-xl"
+              />
+            ) : (
+              <Eye
+                onClick={() => {
+                  TogglePassword(!password);
+                }}
+                className="absolute top-1/2 left-4 transform -translate-y-1/2 text-gray-400 text-xl"
+              />
+            )}
+
+            <input
+              type={password === true ? "password" : "text"}
+              name="password"
+              placeholder="Confirm Password"
+              required
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+              }}
+              className="w-full pl-12 pr-4 py-4 bg-[#363a54] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+            />
+            {confirmPasswordError && (
+              <p className="text-red-500 text-sm">{confirmPasswordError}</p>
             )}
           </div>
         </div>

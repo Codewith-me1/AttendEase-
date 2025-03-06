@@ -2,21 +2,27 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { FaChalkboardTeacher, FaTable, FaBars, FaTimes } from "react-icons/fa";
+import {
+  FaChalkboardTeacher,
+  FaTable,
+  FaBars,
+  FaTimes,
+  FaUser,
+} from "react-icons/fa";
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div
-      className={`h-screen bg-[#7f56d8] text-white shadow-lg ${
+      className={`h-screen bg-[#7f56d8] text-white shadow-lg mt-[3rem] top-[4rem] ${
         isOpen ? "w-64" : "w-20"
       } transition-all duration-300 p-4 flex flex-col`}
     >
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="mb-5 text-white text-lg flex items-center justify-center p-2 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
+        className="mb-5 text-white text-lg flex items-center justify-center p-2 mt-5 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
       >
         {isOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
       </button>
@@ -39,6 +45,16 @@ export default function Sidebar() {
           >
             <FaTable size={22} />
             {isOpen && "Classes Table"}
+          </Link>
+        </li>
+
+        <li>
+          <Link
+            href="/Authenticated/student"
+            className="flex items-center gap-3 text-lg p-3 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
+          >
+            <FaUser size={22} />
+            {isOpen && "Students"}
           </Link>
         </li>
       </ul>

@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import { saveAs } from "file-saver";
 
 export default function Teacher() {
@@ -61,6 +62,13 @@ export default function Teacher() {
     }
   };
 
+  const handleURL = () => {
+    navigator.clipboard.writeText(qrValue);
+    toast.info("Copied to ClipBoard", {
+      position: "top-center",
+    });
+  };
+
   const downloadQRCode = () => {
     if (!qrRef.current) return;
 
@@ -75,7 +83,7 @@ export default function Teacher() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center mt-[10rem] bg-gray-100 p-6">
       <ToastContainer />
 
       {/* ✅ Show Form Only If Class Is Not Created */}
@@ -123,9 +131,18 @@ export default function Teacher() {
             </button>
             <button
               onClick={downloadQRCode}
-              className="bg-gray-500 text-white p-2 rounded-md font-semibold hover:bg-gray-600 transition"
+              className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600  font-semibold  transition"
             >
               Download QR
+            </button>
+
+            <button
+              className="bg-gray-500 text-white p-2 rounded-md font-semibold hover:bg-gray-600 transition"
+              onClick={() => {
+                handleURL();
+              }}
+            >
+              Copy URL
             </button>
           </div>
 

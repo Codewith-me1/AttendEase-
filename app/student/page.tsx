@@ -27,7 +27,7 @@ function StudentComponent() {
       if (user) {
         // Use displayName or fallback to email username
         const name = user.displayName || user.email?.split("@")[0] || "";
-        
+
         setStudentName(name);
       }
     });
@@ -60,10 +60,17 @@ function StudentComponent() {
     }
 
     try {
+      const user = auth.currentUser;
+      const studentId = user ? user.uid : null; // Use UID if logged in, otherwise null
+
       const response = await fetch("/api/saveAttendance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ classId, studentName }),
+        body: JSON.stringify({
+          classId,
+          studentName,
+          studentId, // Send `null` if no user is logged in
+        }),
       });
 
       const result = await response.json();
