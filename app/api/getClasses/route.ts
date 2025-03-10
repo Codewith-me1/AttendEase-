@@ -1,12 +1,19 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db"; // Import the Turso client
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    // Fetch all classes from Turso, ordered by createdAt in descending order
+    const { searchParams } = new URL(req.url);
+    const teacherId = searchParams.get("userId");
+
+    if (!teacherId) {
+      return NextResponse.json({ error: "User ID required" }, { status: 400 });
+    }
+
+    // Fetch classes for the specific teacher
     const result = await db.execute({
-      sql: "SELECT * FROM classes ORDER BY createdAt DESC",
-      args: [], // ✅ Required to avoid TypeScript errors
+      sql: "SELECT * FROM classes WHERE teacherId = ? ORDER BY createdAt DESC",
+      args: [teacherId],
     });
 
     return NextResponse.json(result.rows, { status: 200 });

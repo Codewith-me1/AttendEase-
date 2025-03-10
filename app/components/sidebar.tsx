@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaChalkboardTeacher,
   FaTable,
@@ -13,11 +13,19 @@ import {
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
 
+  // Update main content margin when sidebar state changes
+  useEffect(() => {
+    const mainContent = document.getElementById("main-content");
+    if (mainContent) {
+      mainContent.style.marginLeft = isOpen ? "16rem" : "5rem"; // 16rem = 64px, 5rem = 20px
+    }
+  }, [isOpen]);
+
   return (
     <div
-      className={`h-screen bg-[#7f56d8] text-white shadow-lg mt-[3rem] top-[4rem] ${
+      className={`fixed h-screen bg-[#7f56d8] text-white shadow-lg z-10 pt-10 ${
         isOpen ? "w-64" : "w-20"
-      } transition-all duration-300 p-4 flex flex-col`}
+      } transition-all duration-300 flex flex-col`}
     >
       {/* Toggle Button */}
       <button
@@ -28,7 +36,7 @@ export default function Sidebar() {
       </button>
 
       {/* Sidebar Items */}
-      <ul className="space-y-4">
+      <ul className="space-y-4 p-4">
         <li>
           <Link
             href="/Authenticated/teacher"
@@ -64,9 +72,7 @@ export default function Sidebar() {
         className={`absolute bottom-5 left-0 w-full ${
           isOpen ? "text-center" : "text-left pl-2"
         }`}
-      >
-        <p className="text-gray-500 text-sm">{isOpen && "© 2024 BrainBites"}</p>
-      </div>
+      ></div>
     </div>
   );
 }

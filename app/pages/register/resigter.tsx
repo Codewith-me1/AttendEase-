@@ -91,6 +91,8 @@ const MultiStepSignup = () => {
         formData.password
       );
       const registeredUser = userCredential?.user;
+      if (!registeredUser) throw new Error("User registration failed");
+
       const idToken = await registeredUser?.getIdToken();
 
       if (idToken) {
@@ -99,7 +101,9 @@ const MultiStepSignup = () => {
           maxAge: 60 * 60 * 24,
         });
 
-        router.push("/");
+        router.push("/Authenticated/teacher");
+        await createTeacherInFirestore(registeredUser, "teacher");
+
         console.log("Account Created");
       } else {
         throw new Error("Failed to retrieve ID token");
@@ -124,7 +128,7 @@ const MultiStepSignup = () => {
         maxAge: 60 * 60 * 24, // 1 day
       });
 
-      await createTeacherInFirestore(user);
+      await createTeacherInFirestore(user, "teacher");
 
       router.push("/Authenticated/teacher");
     } catch (error: any) {

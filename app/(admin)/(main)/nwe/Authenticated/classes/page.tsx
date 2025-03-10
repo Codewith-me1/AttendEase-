@@ -9,9 +9,6 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import fileDownload from "js-file-download";
-import { auth } from "@/app/firebase/config";
-import { getUserData } from "@/app/firebase/database";
-import { useRouter } from "next/navigation";
 
 interface Class {
   id: string;
@@ -21,44 +18,20 @@ interface Class {
 
 export default function Dashboard() {
   const [classes, setClasses] = useState<Class[]>([]);
+  
   const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [userId, setUserId] = useState<string | null>(null);
-  const router = useRouter();
 
-  const [user, setUser] = useState<any>(null);
-
-  // ✅ Fetch current teacher's userId
-
-  // ✅ Fetch current user ID on mount
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-
-        // ✅ Retrieve user role from Firestore
-        const userData = await getUserData(currentUser.uid);
-        setUserId(currentUser.uid);
-        fetchClasses(currentUser.uid);
-      } else {
-        router.push("/Authenticated/teacher");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
-  // ✅ Fetch only teacher's created classes
-  const fetchClasses = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/getClasses?userId=${userId}`);
+    const fetchClasses = async () => {
+      const response = await fetch("/api/getClasses");
       const data = await response.json();
       setClasses(data);
       setFilteredClasses(data);
-    } catch (error) {
-      console.error("Error fetching classes:", error);
-    }
-  };
+    };
+
+    fetchClasses();
+  }, []);
 
   const handleFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
     const date = event.target.value;
@@ -95,7 +68,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen p-6">
+    <div className="flex flex-col min-h-screen  p-6">
       {/* Header */}
       <h1 className="text-4xl font-bold text-[#6e48c9] mb-6">Dashboard</h1>
 

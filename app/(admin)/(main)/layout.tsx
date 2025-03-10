@@ -24,23 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
-        {/* Fixed Navbar at the top */}
-        <div className="fixed top-0 left-0 right-0 z-20">
-          <Navbar />
-        </div>
-
-        {/* Content area with sidebar and main content */}
-        <div className="flex bg-gray-100 min-h-screen pt-16">
-          {/* Sidebar will handle its own state and positioning */}
+        <Navbar />
+        {/* Navbar at the top */}
+        <div className="flex bg-gray-100 min-h-screen">
           <Sidebar />
 
-          {/* Main content area - transitions with sidebar state */}
-          <div
-            id="main-content"
-            className="flex-grow p-4 transition-all duration-300"
-          >
-            {children}
-          </div>
+          <div className="flex-grow p-4 ml-20 mt-20">{children}</div>
         </div>
       </body>
     </html>
