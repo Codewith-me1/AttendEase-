@@ -8,7 +8,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { saveAs } from "file-saver";
 import { FaDownload, FaUser } from "react-icons/fa";
 import fileDownload from "js-file-download";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Label,
+} from "recharts";
 
 interface ClassDetails {
   id: string;
@@ -27,6 +34,8 @@ export default function ClassPage() {
   const { id } = params; // Dynamic route parameter
   const [classDetails, setClassDetails] = useState<ClassDetails | null>(null);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [filteredAttendance, setFilteredAttendance] = useState<
     AttendanceRecord[]
   >([]);
@@ -34,6 +43,20 @@ export default function ClassPage() {
   const [loading, setLoading] = useState(true);
   const [qrValue, setQrValue] = useState("");
   const qrRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (fromDate && toDate) {
+      const filtered = attendance.filter((record) => {
+        const recordDate = new Date(record.timestamp)
+          .toISOString()
+          .split("T")[0];
+        return recordDate >= fromDate && recordDate <= toDate;
+      });
+      setFilteredAttendance(filtered);
+    } else {
+      setFilteredAttendance(attendance);
+    }
+  }, [fromDate, toDate, attendance]);
 
   useEffect(() => {
     if (id) {
@@ -99,13 +122,16 @@ export default function ClassPage() {
 
     setFilteredAttendance(filtered);
   };
+  const formatTimestamp = (timestamp: string) => {
+    return new Date(timestamp).toLocaleString();
+  };
 
   const downloadCSV = async (
     classId: string | null,
     className: string | null
   ) => {
     if (!filteredAttendance.length) {
-      toast.error("No attendance records found for the selected date.", {
+      toast.error("No attendance records found for the selected date range.", {
         position: "top-center",
       });
       return;
@@ -114,13 +140,40 @@ export default function ClassPage() {
     const csvContent =
       "Name,Time\n" +
       filteredAttendance
-        .map((row) => `${row.studentName},${row.timestamp}`)
+        .map((row) => `${row.studentName},${formatTimestamp(row.timestamp)}`)
         .join("\n");
-
     fileDownload(
       csvContent,
-      `${className}_attendance_${selectedDate || "all"}.csv`
+      `${className}_attendance_${fromDate || "all"}_to_${toDate || "all"}.csv`
     );
+  };
+
+  const shareQRCode = () => {
+    if (!qrValue) return;
+    if (navigator.share) {
+      navigator.share({
+        title: "Join the Class",
+        text: "Scan this QR Code to join the class!",
+        url: qrValue,
+      });
+    } else {
+      toast.info("Sharing not supported on this device.", {
+        position: "top-center",
+      });
+    }
+  };
+
+  const downloadQRCode = () => {
+    if (!qrRef.current) return;
+
+    const canvas = qrRef.current.querySelector("canvas");
+    if (canvas) {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          saveAs(blob, "class_qrcode.png");
+        }
+      });
+    }
   };
 
   const totalCapacity = 50;
@@ -191,14 +244,28 @@ export default function ClassPage() {
             <h2 className="text-xl font-semibold mb-2">
               Filter Attendance by Date
             </h2>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateFilter}
-              className="border p-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400"
-            />
+            <div className="flex gap-4">
+              <div className="input flex flex-col">
+                <label>From Date:</label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="border p-2 rounded-md"
+                />
+              </div>
+              <div className="input flex flex-col">
+                <label>To Date:</label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="border p-2 rounded-md"
+                />
+              </div>
+            </div>
           </div>
-          <div className="mt-5">
+          <div className="mt-12">
             <button
               onClick={() => downloadCSV(classDetails.id, classDetails.name)}
               className="bg-green-500 text-white p-2 mt-2 rounded-md hover:bg-green-600 transition flex items-center gap-2"
@@ -210,36 +277,66 @@ export default function ClassPage() {
       </div>
 
       {/* ✅ Attendance Pie Chart */}
-      <div className="bg-white p-6 rounded-md shadow-md text-center w-96  mt-6">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">
-          Attendance Distribution
-        </h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={attendanceData}
-              dataKey="value"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label
-            >
-              {attendanceData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index]} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
 
-        <div className="flex justify-center gap-4 mt-4">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-[#7f56d8] rounded-full"></div>
-            <p>Attended</p>
+      <div className="flex gap-20">
+        <div className="bg-white p-6 rounded-md shadow-md text-center w-96  mt-6">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            Attendance Distribution
+          </h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={attendanceData}
+                dataKey="value"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label
+              >
+                {attendanceData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+
+          <div className="flex justify-center gap-4 mt-4">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-[#7f56d8] rounded-full"></div>
+              <p>Attended</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-[#e0e0e0] rounded-full"></div>
+              <p>Absent</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-[#e0e0e0] rounded-full"></div>
-            <p>Absent</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-md shadow-md text-center w-96  mt-6">
+          <div className="mb-4">
+            <p className="text-xl font-semibold text-[#7f56d8] mb-2">QR Code</p>
+            <div
+              ref={qrRef}
+              className="p-2 bg-gray-100 rounded-lg inline-block"
+            >
+              <QRCodeCanvas value={qrValue} size={200} />
+            </div>
+            <p className="text-sm text-gray-500 mt-2">{qrValue}</p>
+          </div>
+          <div className="mt-4 flex gap-3 justify-center">
+            <button
+              onClick={shareQRCode}
+              className="bg-[#7f56d8] text-white p-2 rounded-md font-semibold hover:bg-[#6e48c9] transition"
+            >
+              Share QR Code
+            </button>
+            <button
+              onClick={downloadQRCode}
+              className="bg-gray-500 text-white p-2 rounded-md font-semibold hover:bg-gray-600 transition"
+            >
+              Download QR
+            </button>
           </div>
         </div>
       </div>

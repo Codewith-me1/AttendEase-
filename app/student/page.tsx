@@ -63,13 +63,19 @@ function StudentComponent() {
       const user = auth.currentUser;
       const studentId = user ? user.uid : null; // Use UID if logged in, otherwise null
 
+      const localTimestamp = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+
       const response = await fetch("/api/saveAttendance", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           classId,
           studentName,
-          studentId, // Send `null` if no user is logged in
+          studentId,
+          timestamp: localTimestamp, // Send `null` if no user is logged in
         }),
       });
 

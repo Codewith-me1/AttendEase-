@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
-    const { classId, studentName, studentId } = await req.json();
+    const { classId, studentName, studentId,timestamp} = await req.json();
 
     if (!classId || !studentName.trim()) {
       return NextResponse.json(
@@ -13,17 +13,19 @@ export async function POST(req: Request) {
       );
     }
 
+
     // Insert attendance record into Turso database
     await db.execute({
       sql: `
         INSERT INTO Attendance (id, classId, studentId, studentName, timestamp) 
-        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);
+        VALUES (?, ?, ?, ?, ?);
       `,
       args: [
         crypto.randomUUID(),
         classId,
         studentId || null, // Store NULL if no user is logged in
         studentName,
+        timestamp,
       ],
     });
 

@@ -148,7 +148,7 @@ export default function Teacher() {
       {classCreated && (
         <div className="mt-6 bg-white shadow-lg p-6 rounded-xl flex flex-col items-center text-center">
           <p className="text-xl font-semibold text-[#7f56d8] mb-4">
-            Scan QR Code to Join Class
+            Send QR Code To Student
           </p>
           <div ref={qrRef} className="p-2 bg-gray-100 rounded-lg">
             <QRCodeCanvas value={qrValue} size={200} />
