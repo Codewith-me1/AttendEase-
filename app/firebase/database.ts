@@ -137,13 +137,15 @@ export const addGenreData = async (userId?:string, genreDataArray:[]=[]) => {
 
 
 
-  export const createTeacherInFirestore = async (user:User,) => {
+  export const createTeacherInFirestore = async (user:User,role:string) => {
     try {
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
         uid: user.uid,
         name: user.displayName,
         email: user.email,
+        role,
+        
         photoURL: user.photoURL,
         
         createdAt: new Date().toISOString(),
