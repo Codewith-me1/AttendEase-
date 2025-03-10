@@ -100,7 +100,10 @@ export default function ClassPage() {
     setFilteredAttendance(filtered);
   };
 
-  const downloadCSV = async (classId: string | null) => {
+  const downloadCSV = async (
+    classId: string | null,
+    className: string | null
+  ) => {
     if (!filteredAttendance.length) {
       toast.error("No attendance records found for the selected date.", {
         position: "top-center",
@@ -116,7 +119,7 @@ export default function ClassPage() {
 
     fileDownload(
       csvContent,
-      `${classId}_attendance_${selectedDate || "all"}.csv`
+      `${className}_attendance_${selectedDate || "all"}.csv`
     );
   };
 
@@ -197,7 +200,7 @@ export default function ClassPage() {
           </div>
           <div className="mt-5">
             <button
-              onClick={() => downloadCSV(classDetails.id)}
+              onClick={() => downloadCSV(classDetails.id, classDetails.name)}
               className="bg-green-500 text-white p-2 mt-2 rounded-md hover:bg-green-600 transition flex items-center gap-2"
             >
               Download <FaDownload />
