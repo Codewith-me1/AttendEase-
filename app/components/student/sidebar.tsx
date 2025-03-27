@@ -7,6 +7,7 @@ import {
   FaUser,
   FaCog,
   FaSignOutAlt,
+  FaCalendar,
 } from "react-icons/fa";
 import Link from "next/link";
 import { auth } from "@/app/firebase/config";
@@ -18,7 +19,7 @@ const StudentSidebar = () => {
 
   const handleLogout = async () => {
     await auth.signOut();
-    router.push("/login");
+    router.push("/pages/student");
   };
 
   return (
@@ -34,6 +35,13 @@ const StudentSidebar = () => {
         <SidebarItem
           name="Attendance"
           icon={<FaChalkboardTeacher />}
+          active={active}
+          setActive={setActive}
+        />
+
+        <SidebarItem
+          name="Calendar"
+          icon={<FaCalendar />}
           active={active}
           setActive={setActive}
         />

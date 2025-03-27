@@ -122,6 +122,7 @@ export default function ClassPage() {
 
     setFilteredAttendance(filtered);
   };
+
   const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleString();
   };
@@ -239,41 +240,6 @@ export default function ClassPage() {
         </div>
 
         {/* Download Attendance */}
-        <div className="bg-white p-6 rounded-md shadow-md flex items-center gap-4">
-          <div className="flex flex-col">
-            <h2 className="text-xl font-semibold mb-2">
-              Filter Attendance by Date
-            </h2>
-            <div className="flex gap-4">
-              <div className="input flex flex-col">
-                <label>From Date:</label>
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  className="border p-2 rounded-md"
-                />
-              </div>
-              <div className="input flex flex-col">
-                <label>To Date:</label>
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  className="border p-2 rounded-md"
-                />
-              </div>
-            </div>
-          </div>
-          <div className="mt-12">
-            <button
-              onClick={() => downloadCSV(classDetails.id, classDetails.name)}
-              className="bg-green-500 text-white p-2 mt-2 rounded-md hover:bg-green-600 transition flex items-center gap-2"
-            >
-              Download <FaDownload />
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* ✅ Attendance Pie Chart */}
@@ -339,6 +305,74 @@ export default function ClassPage() {
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-md mt-10 w-[40%] shadow-md flex items-center gap-4">
+        <div className="flex flex-col">
+          <h2 className="text-xl font-semibold mb-2">
+            Filter Attendance by Date
+          </h2>
+          <div className="flex gap-4">
+            <div className="input flex flex-col">
+              <label>From Date:</label>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="border p-2 rounded-md"
+              />
+            </div>
+            <div className="input flex flex-col">
+              <label>To Date:</label>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="border p-2 rounded-md"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-12">
+          <button
+            onClick={() => downloadCSV(classDetails.id, classDetails.name)}
+            className="bg-green-500 text-white p-2 mt-2 rounded-md hover:bg-green-600 transition flex items-center gap-2"
+          >
+            Download <FaDownload />
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-md shadow-md mt-6">
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">
+          Attendance Records
+        </h2>
+        <table className="w-full border-collapse border border-gray-200">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2">Student Name</th>
+              <th className="border p-2">Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredAttendance.length > 0 ? (
+              filteredAttendance.map((record) => (
+                <tr key={record.id} className="border">
+                  <td className="border p-2">{record.studentName}</td>
+                  <td className="border p-2">
+                    {formatTimestamp(record.timestamp)}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={2} className="text-center p-4 text-gray-500">
+                  No attendance records available.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       <ToastContainer />

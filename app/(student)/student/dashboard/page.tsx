@@ -113,7 +113,7 @@ export default function Dashboard() {
 
         <div className="bg-white p-6 rounded-md shadow-md text-center w-96">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            Monthly Distribution
+            March Distribution
           </h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>

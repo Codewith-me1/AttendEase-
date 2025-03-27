@@ -53,3 +53,22 @@ export const getStudents = async () => {
     throw new Error("Failed to retrieve students");
   }
 };
+
+
+export async function getStudentEmailById(studentId: string) {
+  try {
+    const studentRef = adminDb.collection("users").doc(studentId);
+    const docSnap = await studentRef.get();
+
+    if (docSnap.exists) {
+      const userData = docSnap.data();
+      return userData || "";
+    } else {
+      console.warn(`User document not found for student ID: ${studentId}`);
+      return "";
+    }
+  } catch (error) {
+    console.error("Error fetching student email:", error);
+    return "";
+  }
+}

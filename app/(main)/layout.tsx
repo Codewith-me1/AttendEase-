@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/navbar";
+import NavbarTeacher from "../components/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +27,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
         {/* Fixed Navbar at the top */}
         <div className="fixed top-0 left-0 right-0 z-20">
-          <Navbar />
+          <NavbarTeacher />
         </div>
 
         {/* Content area with sidebar and main content */}

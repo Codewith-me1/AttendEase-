@@ -65,6 +65,16 @@ export default function Sidebar() {
             {isOpen && "Students"}
           </Link>
         </li>
+
+        <li>
+          <Link
+            href="/Authenticated/attendance"
+            className="flex items-center gap-3 text-lg p-3 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
+          >
+            <FaTable size={22} />
+            {isOpen && "Attendance"}
+          </Link>
+        </li>
       </ul>
 
       {/* Footer */}

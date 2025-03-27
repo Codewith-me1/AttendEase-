@@ -35,7 +35,7 @@ export default function StudentDashboard() {
             router.push("/login");
           } else {
             // Use user's name from Firestore or email to fetch attendance records
-            fetchAttendance(userData.name || "");
+            fetchAttendance(userData.uid || "");
           }
         } else {
           alert("User data not found.");
@@ -49,10 +49,10 @@ export default function StudentDashboard() {
     return () => unsubscribe();
   }, [router]);
 
-  const fetchAttendance = async (studentName: string) => {
+  const fetchAttendance = async (studentId: string) => {
     try {
       const response = await fetch(
-        `/api/studentAttendance?studentName=${encodeURIComponent(studentName)}`
+        `/api/studentAttendance?studentId=${encodeURIComponent(studentId)}`
       );
       const data = await response.json();
       if (Array.isArray(data)) {

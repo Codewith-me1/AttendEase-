@@ -5,6 +5,154 @@ import { auth } from "@/app/firebase/config";
 import { useRouter } from "next/navigation";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import { format, isAfter } from "date-fns";
+import { getUserData } from "@/app/firebase/database";
+
+interface AttendanceRecord {
+  timestamp: string;
+}
+
+export default function StudentAttendanceCalendar() {
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [user, setUser] = useState<any>(null);
+  const [role, setRole] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        const userData = await getUserData(currentUser.uid);
+
+        if (userData) {
+          setRole(userData.role);
+          if (userData.role !== "student") {
+            alert("Access denied: Only students can access this page.");
+            router.push("/login");
+          } else {
+            fetchAttendance(userData.uid || "");
+          }
+        } else {
+          alert("User data not found.");
+          router.push("/login");
+        }
+      } else {
+        router.push("/login");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  const fetchAttendance = async (studentId: string) => {
+    try {
+      const response = await fetch(
+        `/api/getStudentAttendance?studentId=${studentId}`
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        setAttendance(data.attendance);
+      } else {
+        console.error("Failed to fetch attendance:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+    }
+  };
+
+  const presentDates = new Set(
+    attendance.map((record) =>
+      format(new Date(record.timestamp.replace(" ", "T")), "yyyy-MM-dd")
+    )
+  );
+
+  const tileClassName = ({ date }: { date: Date }) => {
+    const formattedDate = format(date, "yyyy-MM-dd");
+    const today = format(new Date(), "yyyy-MM-dd");
+
+    if (isAfter(date, new Date())) {
+      return "";
+    }
+
+    return presentDates.has(formattedDate) ? "present" : "absent";
+  };
+
+  const tileContent = ({ date }: { date: Date }) => {
+    const formattedDate = format(date, "yyyy-MM-dd");
+
+    if (isAfter(date, new Date())) {
+      return null;
+    }
+
+    if (presentDates.has(formattedDate)) {
+      return <div className="event present">✅</div>;
+    } else {
+      return <div className="event absent">❌</div>;
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+      <h1 className="text-3xl font-bold text-[#6f48eb] mb-8">
+        📅 Student Attendance Calendar
+      </h1>
+
+      <div className="calendar-container">
+        <Calendar
+          tileClassName={tileClassName}
+          tileContent={tileContent}
+          className="custom-calendar"
+        />
+      </div>
+
+      <style jsx>{`
+        .present .react-calendar__tile {
+          background-color: rgba(76, 175, 80, 0.2) !important;
+          font-weight: bold;
+          border-radius: 8px;
+        }
+
+        .absent .react-calendar__tile {
+          background-color: rgba(244, 67, 54, 0.2) !important;
+          font-weight: bold;
+          border-radius: 8px;
+        }
+
+        .event {
+          font-size: 16px;
+          text-align: center;
+          margin-top: 4px;
+          padding: 6px;
+          border-radius: 6px;
+          font-weight: bold;
+          width: 80%;
+          margin: auto;
+        }
+
+        .present {
+          color: #4caf50;
+        }
+
+        .absent {
+          color: #f44336;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+
+
+
+
+"use client";
+
+import { useEffect, useState } from "react";
+import { auth } from "@/app/firebase/config";
+import { useRouter } from "next/navigation";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import { format, isAfter, parseISO } from "date-fns";
 import { getUserData } from "@/app/firebase/database";
 
@@ -123,20 +271,20 @@ export default function StudentAttendanceCalendar() {
     if (isAfter(date, new Date())) return null;
 
     return presentDates.has(formattedDate) ? (
-      <div className="event present">✅ </div>
+      <div className="event present">✅ Present</div>
     ) : (
-      <div className="event absent">❌ </div>
+      <div className="event absent">❌ Absent</div>
     );
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
       <h1 className="text-3xl font-bold text-[#6f48eb] mb-8">
         📅 Attendance Calendar
       </h1>
 
       {/* ✅ Class Filter Dropdown */}
-      <div className="mb-4 bg-white p-5 rounded-md">
+      <div className="mb-4">
         <label className="font-bold mr-2">Select Class:</label>
         <select
           value={selectedClass}
@@ -153,7 +301,7 @@ export default function StudentAttendanceCalendar() {
       </div>
 
       {/* ✅ Calendar Component */}
-      <div className="  p-6 w-full max-w-4xl">
+      <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl">
         <Calendar
           tileClassName={tileClassName}
           tileContent={tileContent}

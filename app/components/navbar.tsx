@@ -6,7 +6,7 @@ import { signOut } from "firebase/auth";
 import { FaSignOutAlt } from "react-icons/fa";
 import Image from "next/image";
 
-export default function Navbar() {
+export default function NavbarTeacher() {
   const router = useRouter();
 
   const handleLogout = async () => {

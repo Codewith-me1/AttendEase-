@@ -4,10 +4,10 @@ import { db } from "@/lib/db"; // Ensure this is your Turso client instance
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const studentName = url.searchParams.get("studentName");
+    const studentId = url.searchParams.get("studentId");
 
-    if (!studentName) {
-      return NextResponse.json({ error: "Student name is required" }, { status: 400 });
+    if (!studentId) {
+      return NextResponse.json({ error: "Student Id is required" }, { status: 400 });
     }
 
     // Query: Join Attendance and classes table to get class name along with timestamp.
@@ -16,10 +16,10 @@ export async function GET(req: Request) {
         SELECT a.timestamp, c.name AS className
         FROM Attendance a
         JOIN classes c ON a.classId = c.id
-        WHERE a.studentName = ?
+        WHERE a.studentId = ?
         ORDER BY a.timestamp DESC
       `,
-      args: [studentName],
+      args: [studentId],
     });
 
     return NextResponse.json(result.rows, { status: 200 });

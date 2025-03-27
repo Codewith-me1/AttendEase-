@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,33 +9,35 @@ import { auth } from "@/app/firebase/config";
 
 function StudentComponent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [classId, setClassId] = useState<string | null>(null);
-  const [className, setClassName] = useState<string | null>(null); // Store class name
+  const [className, setClassName] = useState<string | null>(null);
   const [studentName, setStudentName] = useState("");
   const [marked, setMarked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/pages/student");
+      } else {
+        setIsAuthenticated(true);
+        setStudentName(user.displayName || user.email?.split("@")[0] || "");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   useEffect(() => {
     const id = searchParams.get("classId");
     setClassId(id);
 
     if (id) {
-      fetchClassName(id); // Fetch class name when classId is set
+      fetchClassName(id);
     }
-
-    // If user is logged in, retrieve their display name.
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // Use displayName or fallback to email username
-        const name = user.displayName || user.email?.split("@")[0] || "";
-
-        setStudentName(name);
-      }
-    });
-
-    return () => unsubscribe();
   }, [searchParams]);
 
-  // Fetch class name from the backend
   const fetchClassName = async (classId: string) => {
     try {
       const response = await fetch(`/api/getClassName?classId=${classId}`);
@@ -61,7 +63,7 @@ function StudentComponent() {
 
     try {
       const user = auth.currentUser;
-      const studentId = user ? user.uid : null; // Use UID if logged in, otherwise null
+      const studentId = user ? user.uid : null;
 
       const localTimestamp = new Date()
         .toISOString()
@@ -75,7 +77,7 @@ function StudentComponent() {
           classId,
           studentName,
           studentId,
-          timestamp: localTimestamp, // Send `null` if no user is logged in
+          timestamp: localTimestamp,
         }),
       });
 
@@ -95,6 +97,10 @@ function StudentComponent() {
       toast.error("Something went wrong!", { position: "top-center" });
     }
   };
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">

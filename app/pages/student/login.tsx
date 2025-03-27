@@ -16,6 +16,7 @@ import {
 import { setCookie } from "nookies";
 import { BiLockAlt, BiUser } from "react-icons/bi";
 import Image from "next/image";
+import { ToastContainer } from "react-toastify";
 
 export default function StudentLogin() {
   const [signInWithEmailAndPassword, user, loading, error] =
@@ -131,6 +132,7 @@ export default function StudentLogin() {
         </div> */}
         {errorMessage && <Alert page="Login" error={errorMessage} />}
       </div>
+      <ToastContainer />
     </div>
   );
 }

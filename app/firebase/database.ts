@@ -10,7 +10,7 @@ interface UserData {
   
   email:string|null;
   createdAt:Date | null;
- 
+  
 
 }
 
@@ -156,7 +156,7 @@ export const addGenreData = async (userId?:string, genreDataArray:[]=[]) => {
     }
   };
 
-  export const createUserInFirestore = async (user: User, role: string,name:string|any) => {
+  export const createUserInFirestore = async (user: User, role: string,name:string|any,phone:string) => {
     try {
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
@@ -174,6 +174,7 @@ export const addGenreData = async (userId?:string, genreDataArray:[]=[]) => {
       // ✅ Save user data in Firestore
       await setDoc(userRef, {
         uid: user.uid,
+        phone:phone,
         name:displayName,
         email: user.email,
         photoURL,

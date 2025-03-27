@@ -7,17 +7,21 @@ import { useRouter } from "next/navigation";
 import { saveUserData } from "../../firebase/database";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { sendEmailVerification } from "firebase/auth";
 import { BiMailSend, BiUser } from "react-icons/bi";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed, Phone } from "lucide-react";
 import { GithubAuthProvider, GoogleAuthProvider } from "firebase/auth";
 import Alert from "@/app/components/popup/alert";
 import { setCookie } from "nookies";
 import { createUserInFirestore } from "@/app/firebase/database";
+import { toast } from "react-hot-toast"; // Import toast for notifications
+import { ToastContainer } from "react-toastify";
 
 const StudentRegister = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -75,11 +79,19 @@ const StudentRegister = () => {
 
       if (!registeredUser) throw new Error("User registration failed");
 
+      await sendEmailVerification(registeredUser);
+      toast.success("Verification email sent! Please check your inbox.");
+
       const idToken = await registeredUser.getIdToken();
       if (idToken) {
         setCookie(null, "auth-token", idToken, { path: "/", maxAge: 86400 });
-        await createUserInFirestore(registeredUser, "student", formData.name);
-        router.push("/");
+        await createUserInFirestore(
+          registeredUser,
+          "student",
+          formData.name,
+          formData.phone
+        );
+        router.push("/student/dashboard");
         console.log("Account Created");
       } else {
         throw new Error("Failed to retrieve ID token");
@@ -87,6 +99,16 @@ const StudentRegister = () => {
     } catch (error: any) {
       console.log(error);
       setErrorMessage(error.message);
+
+      // Check if the error is about an existing email
+      if (error.code === "auth/email-already-in-use") {
+        toast.error(
+          "Email already exists. Please use a different email address or login."
+        );
+        setErrorMessage("Email already in use.");
+      } else {
+        toast.error(error.message);
+      }
     }
   };
 
@@ -99,6 +121,17 @@ const StudentRegister = () => {
       router.push("/");
     }
   }, [user, router]);
+
+  // Handle Firebase error messages
+  useEffect(() => {
+    if (error) {
+      if (error.code === "auth/email-already-in-use") {
+        toast.error(
+          "Email already exists. Please use a different email address or login."
+        );
+      }
+    }
+  }, [error]);
 
   return (
     <div className="relative space-y-8 w-full">
@@ -125,6 +158,18 @@ const StudentRegister = () => {
               type="email"
               placeholder="Email"
               value={formData.email}
+              onChange={handleChange}
+              className="w-full pl-12 pr-4 py-4 bg-[#363a54] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+            />
+          </div>
+
+          <div className="relative">
+            <Phone className="absolute top-8 left-4 text-gray-400 text-xl" />
+            <input
+              name="phone"
+              type="text"
+              placeholder="Phone Number +Code"
+              value={formData.phone}
               onChange={handleChange}
               className="w-full pl-12 pr-4 py-4 bg-[#363a54] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
             />
@@ -197,6 +242,7 @@ const StudentRegister = () => {
         {/* Error Message */}
         {errorMessage && <Alert page="Signup" error={errorMessage} />}
       </div>
+      <ToastContainer />
     </div>
   );
 };
