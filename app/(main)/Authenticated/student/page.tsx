@@ -75,6 +75,15 @@ export default function StudentFilter() {
                     {student.name}
                   </td>
                   <td className="py-3 px-4">{student.email}</td>
+
+                  <td className="py-3 px-4">
+                    <input
+                      type="checkbox"
+                      id="vehicle2"
+                      name="vehicle2"
+                      value="Car"
+                    ></input>
+                  </td>
                 </tr>
               ))
             ) : (

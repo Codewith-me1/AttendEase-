@@ -1,347 +1,357 @@
-"use client";
+// "use client";
 
-import { useEffect, useState } from "react";
-import { auth } from "@/app/firebase/config";
-import { useRouter } from "next/navigation";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import { format, isAfter } from "date-fns";
-import { getUserData } from "@/app/firebase/database";
+// import { useEffect, useState } from "react";
+// import { auth } from "@/app/firebase/config";
+// import { useRouter } from "next/navigation";
+// import Calendar from "react-calendar";
+// import "react-calendar/dist/Calendar.css";
+// import { format, isAfter } from "date-fns";
+// import { getUserData } from "@/app/firebase/database";
 
-interface AttendanceRecord {
-  timestamp: string;
-}
+// interface AttendanceRecord {
+//   timestamp: string;
+// }
 
-export default function StudentAttendanceCalendar() {
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [user, setUser] = useState<any>(null);
-  const [role, setRole] = useState<string | null>(null);
-  const router = useRouter();
+// export default function StudentAttendanceCalendar() {
+//   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+//   const [user, setUser] = useState<any>(null);
+//   const [role, setRole] = useState<string | null>(null);
+//   const router = useRouter();
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        const userData = await getUserData(currentUser.uid);
+//   useEffect(() => {
+//     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+//       if (currentUser) {
+//         setUser(currentUser);
+//         const userData = await getUserData(currentUser.uid);
 
-        if (userData) {
-          setRole(userData.role);
-          if (userData.role !== "student") {
-            alert("Access denied: Only students can access this page.");
-            router.push("/login");
-          } else {
-            fetchAttendance(userData.uid || "");
-          }
-        } else {
-          alert("User data not found.");
-          router.push("/login");
-        }
-      } else {
-        router.push("/login");
-      }
-    });
+//         if (userData) {
+//           setRole(userData.role);
+//           if (userData.role !== "student") {
+//             alert("Access denied: Only students can access this page.");
+//             router.push("/login");
+//           } else {
+//             fetchAttendance(userData.uid || "");
+//           }
+//         } else {
+//           alert("User data not found.");
+//           router.push("/login");
+//         }
+//       } else {
+//         router.push("/login");
+//       }
+//     });
 
-    return () => unsubscribe();
-  }, [router]);
+//     return () => unsubscribe();
+//   }, [router]);
 
-  const fetchAttendance = async (studentId: string) => {
-    try {
-      const response = await fetch(
-        `/api/getStudentAttendance?studentId=${studentId}`
-      );
-      const data = await response.json();
+//   const fetchAttendance = async (studentId: string) => {
+//     try {
+//       const response = await fetch(
+//         `/api/getStudentAttendance?studentId=${studentId}`
+//       );
+//       const data = await response.json();
 
-      if (response.ok) {
-        setAttendance(data.attendance);
-      } else {
-        console.error("Failed to fetch attendance:", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching attendance:", error);
-    }
-  };
+//       if (response.ok) {
+//         setAttendance(data.attendance);
+//       } else {
+//         console.error("Failed to fetch attendance:", data.message);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching attendance:", error);
+//     }
+//   };
 
-  const presentDates = new Set(
-    attendance.map((record) =>
-      format(new Date(record.timestamp.replace(" ", "T")), "yyyy-MM-dd")
-    )
-  );
+//   const presentDates = new Set(
+//     attendance.map((record) =>
+//       format(new Date(record.timestamp.replace(" ", "T")), "yyyy-MM-dd")
+//     )
+//   );
 
-  const tileClassName = ({ date }: { date: Date }) => {
-    const formattedDate = format(date, "yyyy-MM-dd");
-    const today = format(new Date(), "yyyy-MM-dd");
+//   const tileClassName = ({ date }: { date: Date }) => {
+//     const formattedDate = format(date, "yyyy-MM-dd");
+//     const today = format(new Date(), "yyyy-MM-dd");
 
-    if (isAfter(date, new Date())) {
-      return "";
-    }
+//     if (isAfter(date, new Date())) {
+//       return "";
+//     }
 
-    return presentDates.has(formattedDate) ? "present" : "absent";
-  };
+//     return presentDates.has(formattedDate) ? "present" : "absent";
+//   };
 
-  const tileContent = ({ date }: { date: Date }) => {
-    const formattedDate = format(date, "yyyy-MM-dd");
+//   const tileContent = ({ date }: { date: Date }) => {
+//     const formattedDate = format(date, "yyyy-MM-dd");
 
-    if (isAfter(date, new Date())) {
-      return null;
-    }
+//     if (isAfter(date, new Date())) {
+//       return null;
+//     }
 
-    if (presentDates.has(formattedDate)) {
-      return <div className="event present">✅</div>;
-    } else {
-      return <div className="event absent">❌</div>;
-    }
-  };
+//     if (presentDates.has(formattedDate)) {
+//       return <div className="event present">✅</div>;
+//     } else {
+//       return <div className="event absent">❌</div>;
+//     }
+//   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold text-[#6f48eb] mb-8">
-        📅 Student Attendance Calendar
-      </h1>
+//   return (
+//     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+//       <h1 className="text-3xl font-bold text-[#6f48eb] mb-8">
+//         📅 Student Attendance Calendar
+//       </h1>
 
-      <div className="calendar-container">
-        <Calendar
-          tileClassName={tileClassName}
-          tileContent={tileContent}
-          className="custom-calendar"
-        />
-      </div>
+//       <div className="calendar-container">
+//         <Calendar
+//           tileClassName={tileClassName}
+//           tileContent={tileContent}
+//           className="custom-calendar"
+//         />
+//       </div>
 
-      <style jsx>{`
-        .present .react-calendar__tile {
-          background-color: rgba(76, 175, 80, 0.2) !important;
-          font-weight: bold;
-          border-radius: 8px;
-        }
+//       <style jsx>{`
+//         .present .react-calendar__tile {
+//           background-color: rgba(76, 175, 80, 0.2) !important;
+//           font-weight: bold;
+//           border-radius: 8px;
+//         }
 
-        .absent .react-calendar__tile {
-          background-color: rgba(244, 67, 54, 0.2) !important;
-          font-weight: bold;
-          border-radius: 8px;
-        }
+//         .absent .react-calendar__tile {
+//           background-color: rgba(244, 67, 54, 0.2) !important;
+//           font-weight: bold;
+//           border-radius: 8px;
+//         }
 
-        .event {
-          font-size: 16px;
-          text-align: center;
-          margin-top: 4px;
-          padding: 6px;
-          border-radius: 6px;
-          font-weight: bold;
-          width: 80%;
-          margin: auto;
-        }
+//         .event {
+//           font-size: 16px;
+//           text-align: center;
+//           margin-top: 4px;
+//           padding: 6px;
+//           border-radius: 6px;
+//           font-weight: bold;
+//           width: 80%;
+//           margin: auto;
+//         }
 
-        .present {
-          color: #4caf50;
-        }
+//         .present {
+//           color: #4caf50;
+//         }
 
-        .absent {
-          color: #f44336;
-        }
-      `}</style>
-    </div>
-  );
-}
-
-
+//         .absent {
+//           color: #f44336;
+//         }
+//       `}</style>
+//     </div>
+//   );
+// }
 
 
 
-"use client";
 
-import { useEffect, useState } from "react";
-import { auth } from "@/app/firebase/config";
-import { useRouter } from "next/navigation";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
-import { format, isAfter, parseISO } from "date-fns";
-import { getUserData } from "@/app/firebase/database";
 
-interface AttendanceRecord {
-  timestamp: string;
-  classId: string; // ✅ Use classId for filtering
-}
+// "use client";
 
-interface ClassRecord {
-  id: string;
-  name: string;
-}
+// import { useEffect, useState } from "react";
+// import { auth } from "@/app/firebase/config";
+// import { useRouter } from "next/navigation";
+// import Calendar from "react-calendar";
+// import "react-calendar/dist/Calendar.css";
+// import { format, isAfter, parseISO } from "date-fns";
+// import { getUserData } from "@/app/firebase/database";
 
-export default function StudentAttendanceCalendar() {
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [classes, setClasses] = useState<ClassRecord[]>([]);
-  const [selectedClass, setSelectedClass] = useState<string>("");
-  const [user, setUser] = useState<any>(null);
-  const [role, setRole] = useState<string | null>(null);
-  const router = useRouter();
+// interface AttendanceRecord {
+//   timestamp: string;
+//   classId: string; // ✅ Use classId for filtering
+// }
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        const userData = await getUserData(currentUser.uid);
+// interface ClassRecord {
+//   id: string;
+//   name: string;
+// }
 
-        if (userData) {
-          setRole(userData.role);
-          if (userData.role !== "student") {
-            alert("Access denied: Only students can access this page.");
-            router.push("/login");
-          } else {
-            fetchClasses();
-            fetchAttendance(userData.uid, ""); // Fetch all attendance initially
-          }
-        } else {
-          alert("User data not found.");
-          router.push("/login");
-        }
-      } else {
-        router.push("/login");
-      }
-    });
+// export default function StudentAttendanceCalendar() {
+//   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+//   const [classes, setClasses] = useState<ClassRecord[]>([]);
+//   const [selectedClass, setSelectedClass] = useState<string>("");
+//   const [user, setUser] = useState<any>(null);
+//   const [role, setRole] = useState<string | null>(null);
+//   const router = useRouter();
 
-    return () => unsubscribe();
-  }, [router]);
+//   useEffect(() => {
+//     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+//       if (currentUser) {
+//         setUser(currentUser);
+//         const userData = await getUserData(currentUser.uid);
 
-  const fetchClasses = async () => {
-    try {
-      const response = await fetch("/api/getAllClasses");
-      const data = await response.json();
+//         if (userData) {
+//           setRole(userData.role);
+//           if (userData.role !== "student") {
+//             alert("Access denied: Only students can access this page.");
+//             router.push("/login");
+//           } else {
+//             fetchClasses();
+//             fetchAttendance(userData.uid, ""); // Fetch all attendance initially
+//           }
+//         } else {
+//           alert("User data not found.");
+//           router.push("/login");
+//         }
+//       } else {
+//         router.push("/login");
+//       }
+//     });
 
-      if (response.ok) {
-        setClasses(data);
-      } else {
-        console.error("Failed to fetch classes:", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching classes:", error);
-    }
-  };
+//     return () => unsubscribe();
+//   }, [router]);
 
-  const fetchAttendance = async (studentId: string, classId: string) => {
-    try {
-      const url = classId
-        ? `/api/getStudentCalendar?studentId=${studentId}&classId=${classId}`
-        : `/api/getStudentCalendar?studentId=${studentId}`;
+//   const fetchClasses = async () => {
+//     try {
+//       const response = await fetch("/api/getAllClasses");
+//       const data = await response.json();
 
-      const response = await fetch(url);
-      const data = await response.json();
+//       if (response.ok) {
+//         setClasses(data);
+//       } else {
+//         console.error("Failed to fetch classes:", data.message);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching classes:", error);
+//     }
+//   };
 
-      if (response.ok) {
-        setAttendance(data.attendance);
-      } else {
-        console.error("Failed to fetch attendance:", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching attendance:", error);
-    }
-  };
+//   const fetchAttendance = async (studentId: string, classId: string) => {
+//     try {
+//       const url = classId
+//         ? `/api/getStudentCalendar?studentId=${studentId}&classId=${classId}`
+//         : `/api/getStudentCalendar?studentId=${studentId}`;
 
-  const handleClassChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSelectedClass = event.target.value;
-    setSelectedClass(newSelectedClass);
-    if (user) {
-      fetchAttendance(user.uid, newSelectedClass);
-    }
-  };
+//       const response = await fetch(url);
+//       const data = await response.json();
 
-  // ✅ Create a set of dates with attendance
-  const presentDates = new Set(
-    attendance.map((record) => {
-      try {
-        return format(parseISO(record.timestamp), "yyyy-MM-dd");
-      } catch (error) {
-        console.error("Error parsing date:", error, record.timestamp);
-        return "";
-      }
-    })
-  );
+//       if (response.ok) {
+//         setAttendance(data.attendance);
+//       } else {
+//         console.error("Failed to fetch attendance:", data.message);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching attendance:", error);
+//     }
+//   };
 
-  // ✅ Function to determine class for calendar tiles
-  const tileClassName = ({ date }: { date: Date }) => {
-    const formattedDate = format(date, "yyyy-MM-dd");
+//   const handleClassChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+//     const newSelectedClass = event.target.value;
+//     setSelectedClass(newSelectedClass);
+//     if (user) {
+//       fetchAttendance(user.uid, newSelectedClass);
+//     }
+//   };
 
-    if (isAfter(date, new Date())) return ""; // Future dates remain blank
+//   // ✅ Create a set of dates with attendance
+//   const presentDates = new Set(
+//     attendance.map((record) => {
+//       try {
+//         return format(parseISO(record.timestamp), "yyyy-MM-dd");
+//       } catch (error) {
+//         console.error("Error parsing date:", error, record.timestamp);
+//         return "";
+//       }
+//     })
+//   );
 
-    return presentDates.has(formattedDate) ? "present-day" : "absent-day";
-  };
+//   // ✅ Function to determine class for calendar tiles
+//   const tileClassName = ({ date }: { date: Date }) => {
+//     const formattedDate = format(date, "yyyy-MM-dd");
 
-  // ✅ Function to add event markers inside calendar tiles
-  const tileContent = ({ date }: { date: Date }) => {
-    const formattedDate = format(date, "yyyy-MM-dd");
+//     if (isAfter(date, new Date())) return ""; // Future dates remain blank
 
-    if (isAfter(date, new Date())) return null;
+//     return presentDates.has(formattedDate) ? "present-day" : "absent-day";
+//   };
 
-    return presentDates.has(formattedDate) ? (
-      <div className="event present">✅ Present</div>
-    ) : (
-      <div className="event absent">❌ Absent</div>
-    );
-  };
+//   // ✅ Function to add event markers inside calendar tiles
+//   const tileContent = ({ date }: { date: Date }) => {
+//     const formattedDate = format(date, "yyyy-MM-dd");
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold text-[#6f48eb] mb-8">
-        📅 Attendance Calendar
-      </h1>
+//     if (isAfter(date, new Date())) return null;
 
-      {/* ✅ Class Filter Dropdown */}
-      <div className="mb-4">
-        <label className="font-bold mr-2">Select Class:</label>
-        <select
-          value={selectedClass}
-          onChange={handleClassChange}
-          className="border p-2 rounded-lg shadow-sm"
-        >
-          <option value="">All Classes</option>
-          {classes.map((cls) => (
-            <option key={cls.id} value={cls.id}>
-              {cls.name}
-            </option>
-          ))}
-        </select>
-      </div>
+//     return presentDates.has(formattedDate) ? (
+//       <div className="event present">✅ Present</div>
+//     ) : (
+//       <div className="event absent">❌ Absent</div>
+//     );
+//   };
 
-      {/* ✅ Calendar Component */}
-      <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl">
-        <Calendar
-          tileClassName={tileClassName}
-          tileContent={tileContent}
-          className="custom-calendar"
-        />
-      </div>
+//   return (
+//     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6">
+//       <h1 className="text-3xl font-bold text-[#6f48eb] mb-8">
+//         📅 Attendance Calendar
+//       </h1>
 
-      {/* ✅ Styles for Calendar */}
-      <style jsx global>{`
-        .present-day .react-calendar__tile {
-          background-color: rgba(76, 175, 80, 0.2) !important;
-          font-weight: bold;
-          border-radius: 8px;
-        }
+//       {/* ✅ Class Filter Dropdown */}
+//       <div className="mb-4">
+//         <label className="font-bold mr-2">Select Class:</label>
+//         <select
+//           value={selectedClass}
+//           onChange={handleClassChange}
+//           className="border p-2 rounded-lg shadow-sm"
+//         >
+//           <option value="">All Classes</option>
+//           {classes.map((cls) => (
+//             <option key={cls.id} value={cls.id}>
+//               {cls.name}
+//             </option>
+//           ))}
+//         </select>
+//       </div>
 
-        .absent-day .react-calendar__tile {
-          background-color: rgba(244, 67, 54, 0.2) !important;
-          font-weight: bold;
-          border-radius: 8px;
-        }
+//       {/* ✅ Calendar Component */}
+//       <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl">
+//         <Calendar
+//           tileClassName={tileClassName}
+//           tileContent={tileContent}
+//           className="custom-calendar"
+//         />
+//       </div>
 
-        .event {
-          font-size: 16px;
-          text-align: center;
-          margin-top: 4px;
-          padding: 6px;
-          border-radius: 6px;
-          font-weight: bold;
-          width: 80%;
-          margin: auto;
-        }
+//       {/* ✅ Styles for Calendar */}
+//       <style jsx global>{`
+//         .present-day .react-calendar__tile {
+//           background-color: rgba(76, 175, 80, 0.2) !important;
+//           font-weight: bold;
+//           border-radius: 8px;
+//         }
 
-        .present {
-          color: #4caf50;
-        }
+//         .absent-day .react-calendar__tile {
+//           background-color: rgba(244, 67, 54, 0.2) !important;
+//           font-weight: bold;
+//           border-radius: 8px;
+//         }
 
-        .absent {
-          color: #f44336;
-        }
-      `}</style>
-    </div>
-  );
-}
+//         .event {
+//           font-size: 16px;
+//           text-align: center;
+//           margin-top: 4px;
+//           padding: 6px;
+//           border-radius: 6px;
+//           font-weight: bold;
+//           width: 80%;
+//           margin: auto;
+//         }
+
+//         .present {
+//           color: #4caf50;
+//         }
+
+//         .absent {
+//           color: #f44336;
+//         }
+//       `}</style>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+// Attendance Page Code Snippet
+
+

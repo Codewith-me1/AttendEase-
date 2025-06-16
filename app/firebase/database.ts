@@ -85,7 +85,27 @@ export const addGenreData = async (userId?:string, genreDataArray:[]=[]) => {
     Type:string;
   }
 
+export const assignStudentsToClass = async (
+  classId: string,
+  studentIds: string[]
+) => {
+  const result: { studentId: string; success: boolean; error?: string }[] = [];
 
+  for (const studentId of studentIds) {
+    try {
+      const studentRef = doc(db, "users", studentId);
+      await updateDoc(studentRef, {
+        classId, // ✅ This replaces any previous class assignment
+      });
+
+      result.push({ studentId, success: true });
+    } catch (error: any) {
+      result.push({ studentId, success: false, error: error.message });
+    }
+  }
+
+  return result;
+};
   
   export const removeLike = async (  likeId: string,  type: string,userId?: string) => {
     try {

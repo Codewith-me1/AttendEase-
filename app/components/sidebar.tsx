@@ -8,6 +8,9 @@ import {
   FaBars,
   FaTimes,
   FaUser,
+  FaPlus,
+  FaFontAwesome,
+  FaFile,
 } from "react-icons/fa";
 
 export default function Sidebar() {
@@ -73,6 +76,26 @@ export default function Sidebar() {
           >
             <FaTable size={22} />
             {isOpen && "Attendance"}
+          </Link>
+        </li>
+
+        <li>
+          <Link
+            href="/Authenticated/assign"
+            className="flex items-center gap-3 text-lg p-3 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
+          >
+            <FaPlus size={22} />
+            {isOpen && "Assign"}
+          </Link>
+        </li>
+
+        <li>
+          <Link
+            href="/Authenticated/record"
+            className="flex items-center gap-3 text-lg p-3 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
+          >
+            <FaFile size={22} />
+            {isOpen && "Records"}
           </Link>
         </li>
       </ul>

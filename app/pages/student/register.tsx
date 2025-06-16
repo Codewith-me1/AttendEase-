@@ -139,7 +139,7 @@ const StudentRegister = () => {
         <div className="space-y-4 relative">
           {/* Full Name Field */}
           <div className="relative">
-            <BiUser className="absolute top-8 left-4 text-gray-400 text-xl" />
+            <BiUser className="absolute top-1/3 left-4 text-gray-400 text-xl" />
             <input
               name="name"
               type="text"
@@ -152,7 +152,7 @@ const StudentRegister = () => {
 
           {/* Email Field */}
           <div className="relative">
-            <BiMailSend className="absolute top-8 left-4 text-gray-400 text-xl" />
+            <BiMailSend className="absolute top-1/3  left-4 text-gray-400 text-xl" />
             <input
               name="email"
               type="email"
@@ -164,11 +164,11 @@ const StudentRegister = () => {
           </div>
 
           <div className="relative">
-            <Phone className="absolute top-8 left-4 text-gray-400 text-xl" />
+            <Phone className="absolute top-1/3  left-4 text-gray-400 text-xl" />
             <input
               name="phone"
               type="text"
-              placeholder="Phone Number +Code"
+              placeholder="+911234567890"
               value={formData.phone}
               onChange={handleChange}
               className="w-full pl-12 pr-4 py-4 bg-[#363a54] text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
@@ -180,7 +180,7 @@ const StudentRegister = () => {
             {passwordVisible ? (
               <EyeClosed
                 onClick={() => setPasswordVisible(false)}
-                className="absolute top-1/2 left-4 text-gray-400 text-xl cursor-pointer"
+                className="absolute top-1 left-4 text-gray-400 text-xl cursor-pointer"
               />
             ) : (
               <Eye

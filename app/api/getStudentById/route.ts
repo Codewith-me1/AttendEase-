@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getStudentEmailById } from "@/app/firebase/adminDb";
 
 
 
@@ -13,9 +12,8 @@ export async function GET(req:NextRequest){
     }
 
     try{
-        const data = await getStudentEmailById(userId); 
+        NextResponse.json({ message: "Fetching student by ID" });
 
-        return NextResponse.json(data)
     }
     catch(err){
         return NextResponse.json("There have been some error please Check")
