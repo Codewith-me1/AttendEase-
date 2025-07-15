@@ -16,18 +16,18 @@ function StudentComponent() {
   const [marked, setMarked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push("/pages/student");
-      } else {
-        setIsAuthenticated(true);
-        setStudentName(user.displayName || user.email?.split("@")[0] || "");
-      }
-    });
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     if (!user) {
+  //       router.push("/pages/student");
+  //     } else {
+  //       setIsAuthenticated(true);
+  //       setStudentName(user.displayName || user.email?.split("@")[0] || "");
+  //     }
+  //   });
 
-    return () => unsubscribe();
-  }, [router]);
+  //   return () => unsubscribe();
+  // }, [router]);
 
   useEffect(() => {
     const id = searchParams.get("classId");

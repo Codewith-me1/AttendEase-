@@ -98,6 +98,16 @@ export default function Sidebar() {
             {isOpen && "Records"}
           </Link>
         </li>
+
+        <li>
+          <Link
+            href="/Authenticated/create"
+            className="flex items-center gap-3 text-lg p-3 rounded-md hover:bg-white hover:text-[#7f56d8] transition"
+          >
+            <FaPlus size={22} />
+            {isOpen && "Create"}
+          </Link>
+        </li>
       </ul>
 
       {/* Footer */}
