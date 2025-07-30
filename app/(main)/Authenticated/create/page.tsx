@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 import Papa from "papaparse";
-
 import { createUserInFirestore } from "@/app/firebase/database";
+
 type Student = {
   name: string;
   email: string;
@@ -14,6 +14,7 @@ type Student = {
 const AddStudents = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [csvUploading, setCsvUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<Student>({
     name: "",
     email: "",
@@ -31,12 +32,16 @@ const AddStudents = () => {
     setFormData({ name: "", email: "", phone: "" });
   };
 
-  const handleCSVUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCSVChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (file) setSelectedFile(file);
+  };
+
+  const handleCSVUpload = async () => {
+    if (!selectedFile) return;
     setCsvUploading(true);
 
-    Papa.parse(file, {
+    Papa.parse(selectedFile, {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
@@ -47,6 +52,8 @@ const AddStudents = () => {
           }
         }
         setCsvUploading(false);
+        setSelectedFile(null); // Reset file
+        alert("CSV Upload Complete!");
       },
     });
   };
@@ -54,7 +61,7 @@ const AddStudents = () => {
   const createStudent = async ({ name, email, phone }: Student) => {
     try {
       const auth = getAuth();
-      const password = "defaultPass123"; // Or generate a random one
+      const password = "defaultPass123"; // Or generate one
       const { user } = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -62,8 +69,6 @@ const AddStudents = () => {
       );
       await createUserInFirestore(user, "student", name, phone);
       console.log(`Student ${name} created with email ${email}`);
-
-      alert(`Student ${name} added and email sent!`);
     } catch (err: any) {
       console.error("Error creating student:", err.message);
     }
@@ -115,9 +120,20 @@ const AddStudents = () => {
         <input
           type="file"
           accept=".csv"
-          onChange={handleCSVUpload}
+          onChange={handleCSVChange}
           className="block w-full"
         />
+
+        {selectedFile && (
+          <button
+            onClick={handleCSVUpload}
+            className="mt-3 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            disabled={csvUploading}
+          >
+            {csvUploading ? "Uploading..." : "Upload"}
+          </button>
+        )}
+
         {csvUploading && (
           <p className="text-sm text-gray-500 mt-2">Uploading CSV...</p>
         )}
