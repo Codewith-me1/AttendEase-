@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     const message = await client.messages.create({
       body: `Hi ${studentName}, you missed today’s class. Please make sure to attend next time. Contact your teacher if needed.`,
       from: twilioNumber,
-      to: phoneNumber,
+      to:  phoneNumber,
     });
 
     return NextResponse.json({ success: true, sid: message.sid });
