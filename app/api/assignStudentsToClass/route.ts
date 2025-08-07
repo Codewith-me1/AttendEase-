@@ -1,6 +1,7 @@
 // /app/api/assignStudentsToClass/route.ts
 import { NextResponse } from "next/server";
 import { assignStudentToClass } from "@/app/firebase/adminDb";
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
