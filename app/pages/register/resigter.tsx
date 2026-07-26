@@ -101,8 +101,11 @@ const MultiStepSignup = () => {
           maxAge: 60 * 60 * 24,
         });
 
-        router.push("/Authenticated/teacher");
+        // Write the profile document before navigating, so the destination page
+        // cannot load against a user that has no profile yet.
         await createTeacherInFirestore(registeredUser, "teacher");
+
+        router.push("/Authenticated/teacher");
 
         console.log("Account Created");
       } else {

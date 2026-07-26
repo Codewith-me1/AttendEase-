@@ -23,8 +23,10 @@ export const saveUserData  = async(userData:UserData,userId?:string)=>{
     throw new Error("Invalid user ID");
   }
 
-    try{ 
-        await setDoc(doc(db, "users", userId), userData);
+    try{
+        // Merge so writing these base fields cannot strip fields already on the
+        // document (role, uid, name, photoURL) that the rest of the app reads.
+        await setDoc(doc(db, "users", userId), userData, { merge: true });
         console.log("User Added Successfully")
     }
     catch(error){
@@ -307,11 +309,13 @@ export const getUserData = async (userId?:string)=>{
   const userRef = doc(db, "users", userId);
   const userSnap = await getDoc(userRef);
 
-  
+  // Returns null when the profile document is missing instead of throwing, so a
+  // missing/not-yet-written doc cannot abort the caller's auth callback.
+  // Callers already branch on a falsy result to handle this case.
   if (userSnap.exists()) {
-    return userSnap.data() || []; 
+    return userSnap.data();
   } else {
-    throw new Error("User document not found");
+    return null;
   }
 
 

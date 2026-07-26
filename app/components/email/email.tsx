@@ -242,7 +242,6 @@ import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { auth } from "@/app/firebase/config";
-import { getUserData } from "@/app/firebase/database"; // Import the function to fetch user data
 import { useRouter } from "next/navigation";
 
 interface ClassDetails {
@@ -276,9 +275,10 @@ export default function SendEmail() {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        const userData = await getUserData(currentUser.uid);
-        setUserId(userData.uid);
-        fetchClasses(userData.uid);
+        // Use the authenticated uid rather than a `uid` field on the profile
+        // document, which is not guaranteed to be present.
+        setUserId(currentUser.uid);
+        fetchClasses(currentUser.uid);
       } else {
         router.push("/Authenticated/teacher");
       }

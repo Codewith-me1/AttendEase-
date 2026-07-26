@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { getUserData } from "@/app/firebase/database";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase/config";
 import fileDownload from "js-file-download";
@@ -51,7 +50,6 @@ export default function AttendancePage() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
-        const userData = await getUserData(currentUser.uid);
         setUserId(currentUser.uid);
         fetchClasses(currentUser.uid);
       } else {

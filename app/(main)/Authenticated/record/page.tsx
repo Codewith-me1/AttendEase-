@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { getUserData } from "@/app/firebase/database";
 import { useRouter } from "next/navigation";
 import { FaDownload, FaUser } from "react-icons/fa";
 import fileDownload from "js-file-download";
@@ -40,8 +39,6 @@ export default function AttendancePage() {
       if (currentUser) {
         setUser(currentUser);
 
-        // ✅ Retrieve user role from Firestore
-        const userData = await getUserData(currentUser.uid);
         setUserId(currentUser.uid);
         fetchClasses(currentUser.uid);
       } else {

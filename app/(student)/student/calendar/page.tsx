@@ -36,17 +36,17 @@ export default function StudentAttendanceCalendar() {
           setRole(userData.role);
           if (userData.role !== "student") {
             alert("Access denied: Only students can access this page.");
-            router.push("/login");
+            router.push("/pages/student");
           } else {
             fetchClasses();
-            fetchAttendance(userData.uid, ""); // Fetch all attendance initially
+            fetchAttendance(currentUser.uid, ""); // Fetch all attendance initially
           }
         } else {
           alert("User data not found.");
-          router.push("/login");
+          router.push("/pages/student");
         }
       } else {
-        router.push("/login");
+        router.push("/pages/student");
       }
     });
 

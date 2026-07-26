@@ -153,7 +153,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { auth } from "@/app/firebase/config";
-import { getUserData } from "@/app/firebase/database";
 
 interface ClassDetails {
   id: string;
@@ -201,7 +200,6 @@ export default function AssignStudentsToClass() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
-        const userData = await getUserData(currentUser.uid);
         setUserId(currentUser.uid);
         fetchClasses(currentUser.uid);
       } else {

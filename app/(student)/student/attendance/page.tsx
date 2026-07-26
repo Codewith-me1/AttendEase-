@@ -32,17 +32,18 @@ export default function StudentDashboard() {
           setRole(userData.role);
           if (userData.role !== "student") {
             alert("Access denied: Only students can access this page.");
-            router.push("/login");
+            router.push("/pages/student");
           } else {
-            // Use user's name from Firestore or email to fetch attendance records
-            fetchAttendance(userData.uid || "");
+            // Key attendance off the authenticated uid; the profile document is
+            // not guaranteed to carry a `uid` field.
+            fetchAttendance(currentUser.uid);
           }
         } else {
           alert("User data not found.");
-          router.push("/login");
+          router.push("/pages/student");
         }
       } else {
-        router.push("/login");
+        router.push("/pages/student");
       }
     });
 
@@ -110,7 +111,7 @@ export default function StudentDashboard() {
         <h1 className="text-3xl font-bold text-[#7f56d8]">Student Dashboard</h1>
         {user && (
           <button
-            onClick={() => auth.signOut().then(() => router.push("/login"))}
+            onClick={() => auth.signOut().then(() => router.push("/pages/student"))}
             className="bg-red-500 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-red-600 transition"
           >
             <FaSignOutAlt /> Logout

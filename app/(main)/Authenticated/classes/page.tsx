@@ -10,7 +10,6 @@ import {
 } from "react-icons/fa";
 import fileDownload from "js-file-download";
 import { auth } from "@/app/firebase/config";
-import { getUserData } from "@/app/firebase/database";
 import { useRouter } from "next/navigation";
 
 interface Class {
@@ -36,8 +35,6 @@ export default function Dashboard() {
       if (currentUser) {
         setUser(currentUser);
 
-        // ✅ Retrieve user role from Firestore
-        const userData = await getUserData(currentUser.uid);
         setUserId(currentUser.uid);
         fetchClasses(currentUser.uid);
       } else {

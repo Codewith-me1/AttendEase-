@@ -31,16 +31,16 @@ export default function Dashboard() {
 
           if (userData.role !== "student") {
             alert("Access denied: Only students can access this page.");
-            router.push("/login");
+            router.push("/pages/student");
           } else {
             console.log("Logged iN");
           }
         } else {
           alert("User data not found.");
-          router.push("/login");
+          router.push("/pages/student");
         }
       } else {
-        router.push("/login");
+        router.push("/pages/student");
       }
     });
 

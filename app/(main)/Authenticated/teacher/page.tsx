@@ -7,7 +7,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { saveAs } from "file-saver";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/firebase/config";
-import { getUserData } from "@/app/firebase/database";
 
 export default function Teacher() {
   const [className, setClassName] = useState("");
@@ -23,7 +22,9 @@ export default function Teacher() {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        const userData = await getUserData(currentUser.uid);
+        // The signed-in uid is the only identity this page needs: classes are
+        // keyed by it in the database. Deriving it straight from the auth user
+        // keeps a Firestore profile read from ever blocking sign-in.
         setUserId(currentUser.uid);
       } else {
         router.push("/Authenticated/teacher");
