@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { saveAs } from "file-saver";
 import { FaDownload, FaUser } from "react-icons/fa";
 import fileDownload from "js-file-download";
+import ClassroomPanel from "@/app/components/ClassroomPanel";
 import {
   PieChart,
   Pie,
@@ -342,6 +343,9 @@ export default function ClassPage() {
           </button>
         </div>
       </div>
+
+      {/* ✅ Google-Classroom-style: join code/link, members & announcements */}
+      <ClassroomPanel classId={classDetails.id} className={classDetails.name} />
 
       <div className="bg-white p-6 rounded-md shadow-md mt-6">
         <h2 className="text-xl font-semibold text-gray-700 mb-4">

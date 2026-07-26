@@ -12,6 +12,12 @@ export default function HomePage() {
           Attendance Portal
         </div>
         <nav className="space-x-4">
+          <Link
+            href="/join"
+            className="text-[#7f56d8] font-semibold hover:underline"
+          >
+            Join a Class
+          </Link>
           <Button className="bg-[#7f56d8] hover:bg-white  hover:text-[#7f56d8]">
             <Link href="/">Login/Signup</Link>
           </Button>

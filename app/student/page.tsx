@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/app/firebase/config";
 
