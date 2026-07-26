@@ -94,6 +94,41 @@ export default function Dashboard() {
     fileDownload(csvContent, `${classId}_attendance.csv`);
   };
 
+  const handleDeleteClass = async (classId: string) => {
+    if (!userId) {
+      alert("User ID not available.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this class?"
+    );
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch("/api/deleteClass", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ classId, teacherId: userId }),
+      });
+
+      if (response.ok) {
+        setClasses(classes.filter((cls) => cls.id !== classId));
+        setFilteredClasses(filteredClasses.filter((cls) => cls.id !== classId));
+        alert("Class deleted successfully.");
+      } else {
+        const errorData = await response.json();
+        console.error(errorData.error);
+        alert("Failed to delete class.");
+      }
+    } catch (error) {
+      console.error("Error deleting class:", error);
+      alert("An error occurred.");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen p-6">
       {/* Header */}
@@ -162,6 +197,13 @@ export default function Dashboard() {
                     {new Date(cls.createdAt).toLocaleDateString()}
                   </td>
                   <td className="py-3 px-4 flex justify-center text-center">
+                    <button
+                      onClick={() => handleDeleteClass(cls.id)}
+                      className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition flex items-center gap-2 ml-2"
+                    >
+                      Delete
+                    </button>
+
                     <button
                       onClick={() => downloadCSV(cls.id)}
                       className="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition flex items-center gap-2"

@@ -19,7 +19,8 @@ function StudentComponent() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        router.push("/pages/student");
+        console.log("User is not authenticated");
+        setIsAuthenticated(false);
       } else {
         setIsAuthenticated(true);
         setStudentName(user.displayName || user.email?.split("@")[0] || "");
@@ -97,10 +98,6 @@ function StudentComponent() {
       toast.error("Something went wrong!", { position: "top-center" });
     }
   };
-
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">

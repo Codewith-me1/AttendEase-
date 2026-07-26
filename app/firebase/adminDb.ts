@@ -54,21 +54,25 @@ export const getStudents = async () => {
   }
 };
 
+import { FieldValue } from "firebase-admin/firestore";
 
-export async function getStudentEmailById(studentId: string) {
+export async function assignStudentToClass(classId: string, studentIds: string[]) {
+  const batch = adminDb.batch(); // Use batch for multiple updates
+
   try {
-    const studentRef = adminDb.collection("users").doc(studentId);
-    const docSnap = await studentRef.get();
-
-    if (docSnap.exists) {
-      const userData = docSnap.data();
-      return userData || "";
-    } else {
-      console.warn(`User document not found for student ID: ${studentId}`);
-      return "";
+    for (const studentId of studentIds) {
+      const studentRef = adminDb.collection("users").doc(studentId);
+      
+      batch.update(studentRef, {
+        classIds: FieldValue.arrayUnion(classId), // ✅ Append classId to array
+      });
     }
+
+    await batch.commit(); // Execute all updates
+    console.log(`Successfully assigned ${studentIds.length} students to class ${classId}`);
+    return { success: true };
   } catch (error) {
-    console.error("Error fetching student email:", error);
-    return "";
+    console.error("Error assigning students to class:", error);
+    return { success: false, message: "Assignment failed" };
   }
 }

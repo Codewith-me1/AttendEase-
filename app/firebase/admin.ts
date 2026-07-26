@@ -10,6 +10,7 @@ if (!admin.apps.length) {
       projectId: process.env.NEXT_PUBLIC_PROJECTID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_PRIVATE_ID?.replace(/\\n/g, "\n"),
+      
     }),
   });
 }
