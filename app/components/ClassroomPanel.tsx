@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { toast } from "react-toastify";
-import fileDownload from "js-file-download";
+import ClassroomAttendanceReport from "./ClassroomAttendanceReport";
 
 interface Member {
   id: string;
@@ -17,14 +17,6 @@ interface Announcement {
   title: string | null;
   message: string;
   createdAt: string;
-}
-
-interface AttendanceRecord {
-  id: string;
-  email: string;
-  name: string | null;
-  sessionDate: string;
-  timestamp: string;
 }
 
 /**
@@ -46,8 +38,6 @@ export default function ClassroomPanel({
   const [message, setMessage] = useState("");
   const [posting, setPosting] = useState(false);
   const [joinLink, setJoinLink] = useState("");
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [attendanceDate, setAttendanceDate] = useState("");
 
   const loadMembers = useCallback(async () => {
     try {
@@ -64,16 +54,6 @@ export default function ClassroomPanel({
       const res = await fetch(`/api/getAnnouncements?classId=${classId}`);
       const data = await res.json();
       if (res.ok) setAnnouncements(data.announcements || []);
-    } catch {
-      /* non-critical */
-    }
-  }, [classId]);
-
-  const loadAttendance = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/getClassroomAttendance?classId=${classId}`);
-      const data = await res.json();
-      if (res.ok) setAttendance(data.records || []);
     } catch {
       /* non-critical */
     }
@@ -99,8 +79,7 @@ export default function ClassroomPanel({
     loadCode();
     loadMembers();
     loadAnnouncements();
-    loadAttendance();
-  }, [classId, loadMembers, loadAnnouncements, loadAttendance]);
+  }, [classId, loadMembers, loadAnnouncements]);
 
   const copy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -141,36 +120,6 @@ export default function ClassroomPanel({
   };
 
   const formatDate = (ts: string) => new Date(ts).toLocaleString();
-
-  const filteredAttendance = attendanceDate
-    ? attendance.filter((r) => r.sessionDate === attendanceDate)
-    : attendance;
-
-  const downloadAttendanceReport = () => {
-    if (filteredAttendance.length === 0) {
-      toast.error("No classroom attendance to download for this selection.", {
-        position: "top-center",
-      });
-      return;
-    }
-    const csvContent =
-      "Session Date,Name,Email,Marked At\n" +
-      filteredAttendance
-        .map(
-          (r) =>
-            `${r.sessionDate},${r.name || ""},${r.email},${formatDate(r.timestamp)}`
-        )
-        .join("\n");
-    fileDownload(
-      csvContent,
-      `${className}_classroom_attendance_${attendanceDate || "all"}.csv`
-    );
-  };
-
-  // Distinct session days (newest first) for the date filter.
-  const sessionDates = Array.from(
-    new Set(attendance.map((r) => r.sessionDate))
-  ).sort((a, b) => (a < b ? 1 : -1));
 
   return (
     <div className="mt-10 w-full">
@@ -291,72 +240,12 @@ export default function ClassroomPanel({
           </div>
         )}
       </div>
-      {/* Classroom attendance report (separate from QR attendance) */}
-      <div className="bg-white p-6 rounded-md shadow-md mt-6">
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-700">
-              Classroom Attendance
-            </h3>
-            <p className="text-sm text-gray-500">
-              Students who marked present from the classroom. A new session
-              starts automatically each day.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <select
-              value={attendanceDate}
-              onChange={(e) => setAttendanceDate(e.target.value)}
-              className="border p-2 rounded-md text-sm"
-            >
-              <option value="">All sessions</option>
-              {sessionDates.map((d) => (
-                <option key={d} value={d}>
-                  {new Date(d).toLocaleDateString()}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={downloadAttendanceReport}
-              className="bg-green-500 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-green-600 transition"
-            >
-              Download Report
-            </button>
-          </div>
-        </div>
-
-        {filteredAttendance.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No classroom attendance yet
-            {attendanceDate ? " for this session" : ""}.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-200">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border p-2 text-left">Session Date</th>
-                  <th className="border p-2 text-left">Name</th>
-                  <th className="border p-2 text-left">Email</th>
-                  <th className="border p-2 text-left">Marked At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAttendance.map((r) => (
-                  <tr key={r.id} className="border">
-                    <td className="border p-2">
-                      {new Date(r.sessionDate).toLocaleDateString()}
-                    </td>
-                    <td className="border p-2">{r.name || "—"}</td>
-                    <td className="border p-2">{r.email}</td>
-                    <td className="border p-2">{formatDate(r.timestamp)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* Per-student classroom attendance: search, filter, view, download */}
+      <ClassroomAttendanceReport
+        classId={classId}
+        className={className}
+        members={members}
+      />
     </div>
   );
 }
